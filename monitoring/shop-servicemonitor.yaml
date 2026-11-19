@@ -7,7 +7,7 @@ metadata:
     release: monitoring
 spec:
   namespaceSelector:
-    matchNames: [shop]
+    matchNames: [shop-staging, shop-production]
   selector:
     matchExpressions:
       - key: app

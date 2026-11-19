@@ -11,7 +11,7 @@ spec:
     path: apps/staging
   destination:
     server: https://kubernetes.default.svc
-    namespace: shop
+    namespace: shop-staging
   syncPolicy:
     automated:
       prune: true

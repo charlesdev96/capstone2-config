@@ -1,4 +1,4 @@
-namespace: shop
+namespace: shop-production
 resources:
   - ../base
 images:

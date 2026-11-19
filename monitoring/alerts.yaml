@@ -26,7 +26,7 @@ spec:
             summary: Shop API p99 latency exceeds one second
             runbook_url: https://github.com/charlesdev96/capstone2-config/blob/main/runbooks/high-latency.md
         - alert: ShopPodCrashLooping
-          expr: increase(kube_pod_container_status_restarts_total{namespace="shop"}[1h]) > 3
+          expr: increase(kube_pod_container_status_restarts_total{namespace=~"shop-.*"}[1h]) > 3
           for: 5m
           labels:
             severity: warning

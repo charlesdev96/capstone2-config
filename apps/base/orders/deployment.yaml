@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: orders
-          image: ghcr.io/CHANGE_ME/gitops-shop-orders:latest
+          image: ghcr.io/charlesdev96/gitops-shop-orders:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

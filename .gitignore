@@ -1,0 +1,3 @@
+# Real secrets stay local - only *.example.yaml templates are committed
+*-secret.yaml
+!*-secret.example.yaml

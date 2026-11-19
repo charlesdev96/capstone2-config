@@ -6,6 +6,15 @@ grafana:
     passwordKey: admin-password
   service:
     type: ClusterIP
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo.monitoring.svc.cluster.local:3200
 prometheus:
   prometheusSpec:
     retention: 7d
@@ -32,5 +41,6 @@ alertmanager:
       - name: default
       - name: critical-webhook
         webhook_configs:
+          # TODO: paste a real webhook URL (e.g. from https://webhook.site) before testing alerts
           - url: http://REPLACE_WITH_REAL_NOTIFICATION_WEBHOOK
             send_resolved: true

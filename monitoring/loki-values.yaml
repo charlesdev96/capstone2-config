@@ -29,3 +29,7 @@ gateway:
   enabled: true
 minio:
   enabled: false
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false

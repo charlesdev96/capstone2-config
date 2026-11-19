@@ -1,4 +1,4 @@
-namespace: shop
+namespace: shop-staging
 resources:
   - ../base
 images:
