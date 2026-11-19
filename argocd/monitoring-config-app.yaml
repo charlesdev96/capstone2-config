@@ -10,7 +10,7 @@ spec:
     targetRevision: main
     path: monitoring
     directory:
-      include: '{shop-servicemonitor.yaml,alerts.yaml}'
+      include: '{shop-servicemonitor.yaml,alerts.yaml,shop-dashboard.yaml}'
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

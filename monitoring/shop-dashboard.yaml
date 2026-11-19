@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitops-shop-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  gitops-shop.json: |
+    {
+      "uid": "gitops-shop",
+      "title": "GitOps Shop",
+      "tags": ["gitops-shop"],
+      "timezone": "browser",
+      "refresh": "10s",
+      "time": { "from": "now-30m", "to": "now" },
+      "schemaVersion": 39,
+      "templating": {
+        "list": [
+          { "name": "ds_prometheus", "label": "Prometheus", "type": "datasource", "query": "prometheus", "current": {} },
+          { "name": "ds_loki", "label": "Loki", "type": "datasource", "query": "loki", "current": {} },
+          {
+            "name": "namespace", "label": "Environment", "type": "custom",
+            "query": "shop-staging,shop-production",
+            "current": { "text": "shop-staging", "value": "shop-staging" },
+            "options": [
+              { "text": "shop-staging", "value": "shop-staging", "selected": true },
+              { "text": "shop-production", "value": "shop-production", "selected": false }
+            ]
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1, "type": "stat", "title": "Requests / sec",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 2 } },
+          "targets": [{ "refId": "A", "expr": "sum(rate(http_requests_total{namespace=\"$namespace\"}[1m]))" }]
+        },
+        {
+          "id": 2, "type": "stat", "title": "Error rate (5xx)",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "percentunit", "decimals": 2,
+            "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0.01 }, { "color": "red", "value": 0.05 } ] } } },
+          "targets": [{ "refId": "A", "expr": "sum(rate(http_requests_total{namespace=\"$namespace\",status_code=~\"5..\"}[5m])) / clamp_min(sum(rate(http_requests_total{namespace=\"$namespace\"}[5m])), 0.001)" }]
+        },
+        {
+          "id": 3, "type": "stat", "title": "p99 latency",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "s", "decimals": 3,
+            "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0.5 }, { "color": "red", "value": 1 } ] } } },
+          "targets": [{ "refId": "A", "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))" }]
+        },
+        {
+          "id": 4, "type": "stat", "title": "Pods running",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "targets": [{ "refId": "A", "expr": "sum(kube_pod_status_phase{namespace=\"$namespace\",phase=\"Running\"})" }]
+        },
+        {
+          "id": 5, "type": "timeseries", "title": "Request rate by service",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "reqps" } },
+          "targets": [{ "refId": "A", "expr": "sum by (service) (rate(http_requests_total{namespace=\"$namespace\"}[1m]))", "legendFormat": "{{service}}" }]
+        },
+        {
+          "id": 6, "type": "timeseries", "title": "p99 latency by service",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "s" } },
+          "targets": [{ "refId": "A", "expr": "histogram_quantile(0.99, sum by (le, service) (rate(http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])))", "legendFormat": "{{service}}" }]
+        },
+        {
+          "id": 7, "type": "timeseries", "title": "Requests by status code",
+          "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "reqps" } },
+          "targets": [{ "refId": "A", "expr": "sum by (status_code) (rate(http_requests_total{namespace=\"$namespace\"}[1m]))", "legendFormat": "{{status_code}}" }]
+        },
+        {
+          "id": 8, "type": "timeseries", "title": "Pod restarts (last 1h)",
+          "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "targets": [{ "refId": "A", "expr": "sum by (pod) (increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\"}[1h]))", "legendFormat": "{{pod}}" }]
+        },
+        {
+          "id": 9, "type": "timeseries", "title": "CPU by pod",
+          "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "cores" } },
+          "targets": [{ "refId": "A", "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",container!=\"\"}[5m]))", "legendFormat": "{{pod}}" }]
+        },
+        {
+          "id": 10, "type": "timeseries", "title": "Memory by pod",
+          "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
+          "datasource": { "type": "prometheus", "uid": "${ds_prometheus}" },
+          "fieldConfig": { "defaults": { "unit": "bytes" } },
+          "targets": [{ "refId": "A", "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"$namespace\",container!=\"\"})", "legendFormat": "{{pod}}" }]
+        },
+        {
+          "id": 11, "type": "logs", "title": "Application logs",
+          "gridPos": { "x": 0, "y": 28, "w": 24, "h": 12 },
+          "datasource": { "type": "loki", "uid": "${ds_loki}" },
+          "options": { "showTime": true, "wrapLogMessage": true, "sortOrder": "Descending" },
+          "targets": [{ "refId": "A", "expr": "{namespace=\"$namespace\"}" }]
+        }
+      ]
+    }
