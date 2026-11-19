@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-shop-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/charlesdev96/capstone2-config
+    targetRevision: main
+    path: apps/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shop
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

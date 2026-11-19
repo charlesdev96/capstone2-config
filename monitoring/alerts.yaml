@@ -1,0 +1,51 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gitops-shop-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: gitops-shop.application
+      rules:
+        - alert: HighErrorRate
+          expr: sum(rate(http_requests_total{status_code=~"5.."}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 0.001) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Shop API error rate exceeds 5 percent
+            runbook_url: https://github.com/charlesdev96/capstone2-config/blob/main/runbooks/high-error-rate.md
+        - alert: HighP99Latency
+          expr: histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Shop API p99 latency exceeds one second
+            runbook_url: https://github.com/charlesdev96/capstone2-config/blob/main/runbooks/high-latency.md
+        - alert: ShopPodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total{namespace="shop"}[1h]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Shop container restarted more than three times in one hour
+            runbook_url: https://github.com/charlesdev96/capstone2-config/blob/main/runbooks/pod-crash-loop.md
+        - alert: KubernetesNodeNotReady
+          expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Kubernetes node is not ready
+            runbook_url: https://github.com/charlesdev96/capstone2-config/blob/main/runbooks/node-not-ready.md
+        - alert: KubernetesNodeDiskSpaceLow
+          expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!=""} / node_filesystem_size_bytes{mountpoint="/",fstype!=""}) < 0.10
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Node filesystem has less than ten percent free space
+            runbook_url: https://github.com/charlesdev96/capstone2-config/blob/main/runbooks/disk-space-low.md

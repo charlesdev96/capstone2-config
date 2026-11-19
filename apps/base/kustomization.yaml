@@ -1,0 +1,10 @@
+resources:
+  - namespace.yaml
+  - gateway/deployment.yaml
+  - gateway/service.yaml
+  - users/deployment.yaml
+  - users/service.yaml
+  - orders/deployment.yaml
+  - orders/service.yaml
+  - payments/deployment.yaml
+  - payments/service.yaml

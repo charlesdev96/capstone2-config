@@ -1,0 +1,18 @@
+namespace: shop
+resources:
+  - ../base
+images:
+  - name: ghcr.io/charlesdev96/gitops-shop-gateway
+    newName: ghcr.io/charlesdev96/gitops-shop-gateway
+    newTag: latest
+  - name: ghcr.io/charlesdev96/gitops-shop-users
+    newName: ghcr.io/charlesdev96/gitops-shop-users
+    newTag: latest
+  - name: ghcr.io/charlesdev96/gitops-shop-orders
+    newName: ghcr.io/charlesdev96/gitops-shop-orders
+    newTag: latest
+  - name: ghcr.io/charlesdev96/gitops-shop-payments
+    newName: ghcr.io/charlesdev96/gitops-shop-payments
+    newTag: latest
+patches:
+  - path: replicas-patch.yaml

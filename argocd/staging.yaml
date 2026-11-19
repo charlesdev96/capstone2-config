@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-shop-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/charlesdev96/capstone2-config
+    targetRevision: main
+    path: apps/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shop
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
