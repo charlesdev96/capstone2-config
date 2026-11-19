@@ -4,15 +4,15 @@ resources:
 images:
   - name: ghcr.io/charlesdev96/gitops-shop-gateway
     newName: ghcr.io/charlesdev96/gitops-shop-gateway
-    newTag: latest
+    newTag: b6571e2dd61e0d41e3cda7ad62426b71a571eef1
   - name: ghcr.io/charlesdev96/gitops-shop-users
     newName: ghcr.io/charlesdev96/gitops-shop-users
-    newTag: latest
+    newTag: b6571e2dd61e0d41e3cda7ad62426b71a571eef1
   - name: ghcr.io/charlesdev96/gitops-shop-orders
     newName: ghcr.io/charlesdev96/gitops-shop-orders
-    newTag: latest
+    newTag: b6571e2dd61e0d41e3cda7ad62426b71a571eef1
   - name: ghcr.io/charlesdev96/gitops-shop-payments
     newName: ghcr.io/charlesdev96/gitops-shop-payments
-    newTag: latest
+    newTag: b6571e2dd61e0d41e3cda7ad62426b71a571eef1
 patches:
   - path: replicas-patch.yaml
