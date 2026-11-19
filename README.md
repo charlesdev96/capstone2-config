@@ -9,9 +9,9 @@ Application code and CI/CD live in [capstone2-app](https://github.com/charlesdev
 ```text
 push to capstone2-app
   -> CI: lint, test, audit, build, Trivy scan, push images to GHCR
-  -> CI bot commits new image tags to apps/staging/kustomization.yaml (this repo)
-  -> Argo CD auto-syncs staging            (namespace: shop-staging)
-  -> you promote the tag to production      (namespace: shop-production, manual sync)
+  -> CI bot commits the new image tag to apps/staging and apps/production (this repo)
+  -> Argo CD auto-syncs staging                       (namespace: shop-staging)
+  -> production shows OutOfSync -> you click Sync     (namespace: shop-production)
 ```
 
 | Environment | Namespace | Sync |
@@ -199,13 +199,15 @@ Open http://localhost:3000 and log in with the credentials from Step 3.
 kubectl get deploy -n shop-staging -o jsonpath="{range .items[*]}{.metadata.name}{'  '}{.spec.template.spec.containers[0].image}{'\n'}{end}"
 ```
 
-## Promoting to production
+## Deploying to production
 
-1. Copy the `newTag` values from `apps/staging/kustomization.yaml` into `apps/production/kustomization.yaml` (GitHub's web editor is fine).
-2. Commit and push.
-3. In Argo CD, sync `gitops-shop-production`.
+No manual tag editing is needed. Every push to `capstone2-app` updates the image tag in both overlays:
 
-To roll back, revert that commit and sync again.
+1. Staging deploys the new version automatically.
+2. `gitops-shop-production` shows **OutOfSync** in Argo CD (click **Refresh** if it has not appeared yet).
+3. Check staging, then open `gitops-shop-production` → **Sync** → **Synchronize**.
+
+To roll back, revert the bot's `chore: deploy <sha>` commit in this repository and sync production again.
 
 > The CI bot commits to this repository. If you edit it locally, run `git pull` first so your push is not rejected.
 
